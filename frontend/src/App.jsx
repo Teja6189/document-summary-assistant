@@ -272,7 +272,7 @@ function App() {
         fetchError.message.toLowerCase().includes("fetch")
       ) {
         setError(
-          "Cannot connect to the backend. Please make sure app.py is running on http://localhost:5001."
+          "Cannot connect to the backend. Please make sure app.py is running on http://192.168.0.119:5001."
         );
       } else {
         setError(
