@@ -3,4 +3,4 @@ PyMuPDF==1.24.10
 pytesseract==0.3.13
 Pillow==10.4.0
 gunicorn
-flask-corsnpm run build
+flask-cors
