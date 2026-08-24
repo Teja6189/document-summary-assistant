@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import "./App.css";
 
 const API_BASE_URL =
   "https://document-summary-assistant-1-6wc9.onrender.com";
@@ -10,56 +9,67 @@ const SUMMARY_OPTIONS = [
   { value: "long", label: "Long" },
 ];
 
-const ACCEPTED_TYPES = ".pdf,.png,.jpg,.jpeg,.webp";
-
-const formatFileSize = (bytes) => {
-  if (!bytes) return "0 Bytes";
-
-  const units = ["Bytes", "KB", "MB", "GB"];
-
-  const index = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
-    units.length - 1
-  );
-
-  const value = bytes / 1024 ** index;
-
-  return `${value.toFixed(value >= 10 || index === 0 ? 0 : 1)} ${
-    units[index]
-  }`;
-};
+const ACCEPTED_TYPES =
+  ".pdf,.png,.jpg,.jpeg,.webp";
 
 function App() {
   const fileInputRef = useRef(null);
 
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] =
+    useState(null);
 
-  const [summaryLength, setSummaryLength] = useState("medium");
+  const [summaryLength, setSummaryLength] =
+    useState("medium");
 
-  const [summary, setSummary] = useState("");
+  const [summary, setSummary] =
+    useState("");
 
-  const [keyPoints, setKeyPoints] = useState([]);
+  const [keyPoints, setKeyPoints] =
+    useState([]);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] =
+    useState("");
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] =
+    useState(false);
 
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] =
+    useState(false);
 
-  // =========================================================
-  // CLEAR MESSAGES
-  // =========================================================
+  const formatFileSize = (bytes) => {
+    if (!bytes) return "0 Bytes";
+
+    const units = [
+      "Bytes",
+      "KB",
+      "MB",
+      "GB",
+    ];
+
+    const index = Math.min(
+      Math.floor(
+        Math.log(bytes) / Math.log(1024)
+      ),
+      units.length - 1
+    );
+
+    const value =
+      bytes / 1024 ** index;
+
+    return `${value.toFixed(
+      value >= 10 || index === 0
+        ? 0
+        : 1
+    )} ${units[index]}`;
+  };
 
   const clearMessages = () => {
     setError("");
     setSuccess("");
   };
-
-  // =========================================================
-  // VALIDATE FILE
-  // =========================================================
 
   const validateFile = (file) => {
     if (!file) {
@@ -74,36 +84,39 @@ function App() {
       "image/webp",
     ];
 
-    const fileExtension = `.${file.name
-      .split(".")
-      .pop()
-      .toLowerCase()}`;
+    const extension =
+      `.${file.name
+        .split(".")
+        .pop()
+        .toLowerCase()}`;
 
-    const isValidType =
-      allowedMimeTypes.includes(file.type) ||
-      ACCEPTED_TYPES.includes(fileExtension);
+    const validType =
+      allowedMimeTypes.includes(
+        file.type
+      ) ||
+      ACCEPTED_TYPES.includes(
+        extension
+      );
 
-    if (!isValidType) {
+    if (!validType) {
       setError(
         "Unsupported file type. Please select a PDF, PNG, JPG, JPEG, or WEBP file."
       );
       return false;
     }
 
-    // 10 MB maximum
-    const maxSize = 10 * 1024 * 1024;
+    const maxSize =
+      50 * 1024 * 1024;
 
     if (file.size > maxSize) {
-      setError("File size must be less than 10 MB.");
+      setError(
+        "File size must be less than 50 MB."
+      );
       return false;
     }
 
     return true;
   };
-
-  // =========================================================
-  // SELECT FILE
-  // =========================================================
 
   const handleFileSelect = (file) => {
     clearMessages();
@@ -113,236 +126,172 @@ function App() {
     }
 
     setSelectedFile(file);
-
     setSummary("");
-
     setKeyPoints([]);
   };
 
-  // =========================================================
-  // FILE INPUT
-  // =========================================================
-
   const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
+    const file =
+      event.target.files?.[0];
 
     if (file) {
       handleFileSelect(file);
     }
   };
 
-  // =========================================================
-  // OPEN FILE SELECTOR
-  // =========================================================
-
-  const openFileSelector = () => {
-    fileInputRef.current?.click();
-  };
-
-  // =========================================================
-  // DRAG OVER
-  // =========================================================
-
   const handleDragOver = (event) => {
     event.preventDefault();
-
     event.stopPropagation();
-
     setIsDragging(true);
   };
 
-  // =========================================================
-  // DRAG LEAVE
-  // =========================================================
-
   const handleDragLeave = (event) => {
     event.preventDefault();
-
     event.stopPropagation();
-
     setIsDragging(false);
   };
-
-  // =========================================================
-  // DROP FILE
-  // =========================================================
 
   const handleDrop = (event) => {
     event.preventDefault();
-
     event.stopPropagation();
 
     setIsDragging(false);
 
-    const files = event.dataTransfer.files;
+    const file =
+      event.dataTransfer.files?.[0];
 
-    if (!files || files.length === 0) {
-      return;
+    if (file) {
+      handleFileSelect(file);
     }
-
-    const file = files[0];
-
-    handleFileSelect(file);
   };
-
-  // =========================================================
-  // REMOVE FILE
-  // =========================================================
 
   const removeFile = () => {
     setSelectedFile(null);
-
     setSummary("");
-
     setKeyPoints([]);
-
     clearMessages();
 
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value =
+        "";
     }
   };
 
-  // =========================================================
-  // GENERATE SUMMARY
-  // =========================================================
+  const handleGenerateSummary =
+    async () => {
+      clearMessages();
 
-  const handleGenerateSummary = async () => {
-    clearMessages();
+      if (!selectedFile) {
+        setError(
+          "Please select a file first."
+        );
+        return;
+      }
 
-    if (!selectedFile) {
-      setError("Please select a file first.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    setSummary("");
-
-    setKeyPoints([]);
-
-    try {
-      const formData = new FormData();
-
-      formData.append("file", selectedFile);
-
-      formData.append("length", summaryLength);
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/summarize`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      let data;
+      setIsLoading(true);
+      setSummary("");
+      setKeyPoints([]);
 
       try {
-        data = await response.json();
+        const formData =
+          new FormData();
+
+        formData.append(
+          "file",
+          selectedFile
+        );
+
+        formData.append(
+          "length",
+          summaryLength
+        );
+
+        const response =
+          await fetch(
+            `${API_BASE_URL}/api/summarize`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+        let data = {};
+
+        try {
+          data =
+            await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              data.message ||
+              "Unable to process the document."
+          );
+        }
+
+        setSummary(
+          data.summary || ""
+        );
+
+        setKeyPoints(
+          Array.isArray(
+            data.keyPoints
+          )
+            ? data.keyPoints
+            : Array.isArray(
+                data.key_points
+              )
+            ? data.key_points
+            : []
+        );
+
+        setSuccess(
+          "Document processed successfully."
+        );
+      } catch (err) {
+        console.error(
+          "Document processing error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Unable to process the document."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+  const copySummary =
+    async () => {
+      if (!summary) return;
+
+      try {
+        await navigator.clipboard.writeText(
+          summary
+        );
+
+        setSuccess(
+          "Summary copied to clipboard."
+        );
+
+        setTimeout(
+          () => setSuccess(""),
+          2000
+        );
       } catch {
-        data = {};
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-            data.message ||
-            "Unable to process the document."
-        );
-      }
-
-      setSummary(data.summary || "");
-
-      setKeyPoints(
-        Array.isArray(data.keyPoints)
-          ? data.keyPoints
-          : Array.isArray(data.key_points)
-          ? data.key_points
-          : []
-      );
-
-      setSuccess(
-        "Document processed successfully."
-      );
-    } catch (fetchError) {
-      console.error(
-        "Document processing error:",
-        fetchError
-      );
-
-      if (
-        fetchError instanceof TypeError &&
-        fetchError.message
-          .toLowerCase()
-          .includes("fetch")
-      ) {
         setError(
-          "Cannot connect to the backend. Please make sure the backend is running on Render."
-        );
-      } else {
-        setError(
-          fetchError.message ||
-            "Unable to process the document."
+          "Unable to copy the summary."
         );
       }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // =========================================================
-  // CLEAR EVERYTHING
-  // =========================================================
-
-  const clearAll = () => {
-    setSelectedFile(null);
-
-    setSummary("");
-
-    setKeyPoints([]);
-
-    setError("");
-
-    setSuccess("");
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  // =========================================================
-  // COPY SUMMARY
-  // =========================================================
-
-  const copySummary = async () => {
-    if (!summary) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(summary);
-
-      setSuccess("Summary copied to clipboard.");
-
-      setTimeout(() => {
-        setSuccess("");
-      }, 2000);
-    } catch (error) {
-      console.error("Copy failed:", error);
-
-      setError("Unable to copy the summary.");
-    }
-  };
-
-  // =========================================================
-  // DOWNLOAD SUMMARY
-  // =========================================================
+    };
 
   const downloadSummary = () => {
-    if (!summary) {
-      return;
-    }
+    if (!summary) return;
 
     const content = [
       "DOCUMENT SUMMARY",
@@ -354,44 +303,39 @@ function App() {
       "===========",
       "",
       ...keyPoints.map(
-        (point, index) => `${index + 1}. ${point}`
+        (point, index) =>
+          `${index + 1}. ${point}`
       ),
     ].join("\n");
 
-    const blob = new Blob([content], {
-      type: "text/plain",
-    });
+    const blob = new Blob(
+      [content],
+      {
+        type: "text/plain",
+      }
+    );
 
-    const url = URL.createObjectURL(blob);
+    const url =
+      URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
 
     link.href = url;
-
-    link.download = "document-summary.txt";
+    link.download =
+      "document-summary.txt";
 
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
   };
-
-  // =========================================================
-  // UI
-  // =========================================================
-
-  return (
+    return (
     <div className="app-container">
 
-      {/* =====================================================
-          HEADER
-      ====================================================== */}
-
+      {/* HEADER */}
       <header className="app-header">
-
         <div className="header-content">
 
           <div className="logo-area">
@@ -414,19 +358,12 @@ function App() {
           </div>
 
         </div>
-
       </header>
 
-      {/* =====================================================
-          MAIN
-      ====================================================== */}
-
+      {/* MAIN CONTENT */}
       <main className="main-content">
 
-        {/* ===================================================
-            UPLOAD CARD
-        ==================================================== */}
-
+        {/* UPLOAD CARD */}
         <section className="card upload-card">
 
           <div className="section-heading">
@@ -436,8 +373,8 @@ function App() {
             </h2>
 
             <p>
-              Upload a document and let the assistant
-              generate a concise summary.
+              Upload a document and let the
+              assistant generate a concise summary.
             </p>
 
           </div>
@@ -449,7 +386,9 @@ function App() {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            onClick={openFileSelector}
+            onClick={() =>
+              fileInputRef.current?.click()
+            }
           >
 
             <input
@@ -478,29 +417,25 @@ function App() {
               onClick={(event) => {
                 event.stopPropagation();
 
-                openFileSelector();
+                fileInputRef.current?.click();
               }}
             >
               Browse Files
             </button>
 
             <p className="supported-text">
-              Supported formats: PDF, PNG, JPG,
-              JPEG, WEBP
+              Supported formats: PDF, PNG,
+              JPG, JPEG, WEBP
             </p>
 
             <p className="supported-text">
-              Maximum file size: 10 MB
+              Maximum file size: 50 MB
             </p>
 
           </div>
 
-          {/* =================================================
-              SELECTED FILE
-          ================================================== */}
-
+          {/* SELECTED FILE */}
           {selectedFile && (
-
             <div className="selected-file">
 
               <div className="file-info">
@@ -534,15 +469,11 @@ function App() {
               </button>
 
             </div>
-
           )}
 
         </section>
 
-        {/* ===================================================
-            SUMMARY SETTINGS
-        ==================================================== */}
-
+        {/* SUMMARY SETTINGS */}
         <section className="card settings-card">
 
           <div className="section-heading">
@@ -552,68 +483,76 @@ function App() {
             </h2>
 
             <p>
-              Choose how detailed you want your
-              summary to be.
+              Choose how detailed you want
+              your summary to be.
             </p>
 
           </div>
 
           <div className="summary-options">
 
-            {SUMMARY_OPTIONS.map((option) => (
+            {SUMMARY_OPTIONS.map(
+              (option) => (
 
-              <button
-                key={option.value}
-                type="button"
-                className={`summary-option ${
-                  summaryLength === option.value
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  setSummaryLength(option.value)
-                }
-              >
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`summary-option ${
+                    summaryLength ===
+                    option.value
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setSummaryLength(
+                      option.value
+                    )
+                  }
+                >
 
-                <span>
-                  {option.label}
-                </span>
+                  <span>
+                    {option.label}
+                  </span>
 
-                {option.value === "short" && (
-                  <small>
-                    Quick overview
-                  </small>
-                )}
+                  {option.value ===
+                    "short" && (
+                    <small>
+                      Quick overview
+                    </small>
+                  )}
 
-                {option.value === "medium" && (
-                  <small>
-                    Balanced summary
-                  </small>
-                )}
+                  {option.value ===
+                    "medium" && (
+                    <small>
+                      Balanced summary
+                    </small>
+                  )}
 
-                {option.value === "long" && (
-                  <small>
-                    Detailed summary
-                  </small>
-                )}
+                  {option.value ===
+                    "long" && (
+                    <small>
+                      Detailed summary
+                    </small>
+                  )}
 
-              </button>
+                </button>
 
-            ))}
+              )
+            )}
 
           </div>
 
-          {/* =================================================
-              GENERATE BUTTON
-          ================================================== */}
-
+          {/* GENERATE BUTTON */}
           <button
             type="button"
             className="generate-button"
             disabled={
-              !selectedFile || isLoading
+              !selectedFile ||
+              isLoading
             }
-            onClick={handleGenerateSummary}
+            onClick={
+              handleGenerateSummary
+            }
           >
 
             {isLoading ? (
@@ -634,12 +573,8 @@ function App() {
 
         </section>
 
-        {/* ===================================================
-            ERROR MESSAGE
-        ==================================================== */}
-
+        {/* ERROR MESSAGE */}
         {error && (
-
           <div className="message error-message">
 
             <span>
@@ -651,15 +586,10 @@ function App() {
             </span>
 
           </div>
-
         )}
 
-        {/* ===================================================
-            SUCCESS MESSAGE
-        ==================================================== */}
-
+        {/* SUCCESS MESSAGE */}
         {success && (
-
           <div className="message success-message">
 
             <span>
@@ -671,15 +601,10 @@ function App() {
             </span>
 
           </div>
-
         )}
 
-        {/* ===================================================
-            SUMMARY RESULT
-        ==================================================== */}
-
+        {/* SUMMARY RESULT */}
         {summary && (
-
           <section className="card result-card">
 
             <div className="result-header">
@@ -691,8 +616,8 @@ function App() {
                 </h2>
 
                 <p>
-                  Generated from your uploaded
-                  document.
+                  Generated from your
+                  uploaded document.
                 </p>
 
               </div>
@@ -726,15 +651,10 @@ function App() {
             </div>
 
           </section>
-
         )}
 
-        {/* ===================================================
-            KEY POINTS
-        ==================================================== */}
-
+        {/* KEY POINTS */}
         {keyPoints.length > 0 && (
-
           <section className="card result-card">
 
             <div className="result-header">
@@ -746,8 +666,8 @@ function App() {
                 </h2>
 
                 <p>
-                  Important information extracted
-                  from the document.
+                  Important information
+                  extracted from the document.
                 </p>
 
               </div>
@@ -781,33 +701,39 @@ function App() {
             </div>
 
           </section>
-
         )}
 
-        {/* ===================================================
-            CLEAR BUTTON
-        ==================================================== */}
-
-        {(summary || keyPoints.length > 0) && (
+        {/* CLEAR RESULTS */}
+        {(summary ||
+          keyPoints.length > 0) && (
 
           <div className="clear-section">
 
             <button
               type="button"
               className="clear-button"
-              onClick={clearAll}
+              onClick={() => {
+                setSelectedFile(null);
+                setSummary("");
+                setKeyPoints([]);
+                setError("");
+                setSuccess("");
+
+                if (
+                  fileInputRef.current
+                ) {
+                  fileInputRef.current.value =
+                    "";
+                }
+              }}
             >
               Clear Results
             </button>
 
           </div>
-
         )}
 
-        {/* ===================================================
-            EMPTY STATE
-        ==================================================== */}
-
+        {/* INFORMATION SECTION */}
         {!summary &&
           keyPoints.length === 0 &&
           !isLoading &&
@@ -826,9 +752,9 @@ function App() {
                 </h3>
 
                 <p>
-                  Upload your document, choose
-                  the summary length, and click
-                  Generate Summary.
+                  Upload your document,
+                  choose the summary length,
+                  and click Generate Summary.
                 </p>
 
               </div>
@@ -844,9 +770,10 @@ function App() {
                 </h3>
 
                 <p>
-                  The document is processed by
-                  the backend and returned as an
-                  easy-to-understand summary.
+                  The document is processed
+                  by the backend and returned
+                  as an easy-to-understand
+                  summary.
                 </p>
 
               </div>
@@ -862,22 +789,19 @@ function App() {
                 </h3>
 
                 <p>
-                  Important points are extracted
-                  separately for quick reading.
+                  Important points are
+                  extracted separately for
+                  quick reading.
                 </p>
 
               </div>
 
             </section>
-
           )}
 
       </main>
 
-      {/* =====================================================
-          FOOTER
-      ====================================================== */}
-
+      {/* FOOTER */}
       <footer className="app-footer">
 
         <p>
