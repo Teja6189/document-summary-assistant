@@ -1,12 +1,6 @@
-
-
 # Document Summary Assistant
 
 A full-stack document summarization app built with React + Vite on the frontend and Python Flask on the backend.
-
-## Live Application
-
-https://document-summary-assistantu.netlify.app/
 
 ## Features
 
@@ -17,6 +11,10 @@ https://document-summary-assistantu.netlify.app/
 - Generates summaries in short, medium, and long modes
 - Shows key points as concise bullet-style points
 - Includes loading states and user-friendly error messages
+
+## Live Application
+
+https://document-summary-assistantu.netlify.app/
 
 ## Project structure
 
@@ -32,49 +30,81 @@ https://document-summary-assistantu.netlify.app/
 cd /Users/tejaswi/Desktop/document-summary-assistant
 python3 -m venv .venv
 source .venv/bin/activate
-Install backend dependencies:
+```
 
-Bash
+2. Install backend dependencies:
 
+```bash
 pip install -r backend/requirements.txt
-Install Tesseract OCR on your machine. On macOS with Homebrew:
+```
 
-Bash
+3. Install Tesseract OCR on your machine. On macOS with Homebrew:
 
+```bash
 brew install tesseract
-Install frontend dependencies:
+```
 
-Bash
+4. Install frontend dependencies:
 
+```bash
 cd frontend
 npm install
-Run the app
+```
+
+## Run the app
+
 Start the backend from the project root:
 
-Bash
-
+```bash
 cd /Users/tejaswi/Desktop/document-summary-assistant
 source .venv/bin/activate
 cd backend
 flask --app app run --debug --host 0.0.0.0 --port 5001
+```
+
 Start the frontend in a separate terminal:
 
-Bash
-
+```bash
 cd /Users/tejaswi/Desktop/document-summary-assistant/frontend
 npm run dev
+```
+
 Open the app in a browser at:
 
-
+```text
 http://localhost:5173
-Backend API
-Health check
-Bash
+```
 
+## Backend API
+
+### Health check
+
+```bash
 curl http://localhost:5001/
-Summarize document
-Bash
+```
 
+### Summarize document
+
+```bash
 curl -X POST http://localhost:5001/api/summarize \
   -F "file=@example.pdf" \
   -F "length=medium"
+```
+
+## Notes
+
+- The frontend uses a Vite proxy so `/api` requests are forwarded to the Flask backend.
+- The backend is configured to run on port 5001 to avoid a system-level port conflict on port 5000.
+- Supported uploads are PDF, PNG, JPG, JPEG, and WEBP.
+- PyMuPDF is used to extract text from text-based PDFs.
+- Tesseract OCR is used to process scanned PDFs and images.
+- If the document has no readable text, the API returns a helpful error.
+
+## Deployment
+
+- Frontend: Netlify
+- Backend: Render
+
+## GitHub Repository
+
+https://github.com/Teja6189/document-summary-assistant
