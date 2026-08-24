@@ -12,6 +12,8 @@ A full-stack document summarization app built with React + Vite on the frontend 
 - Shows key points as concise bullet-style points
 - Includes loading states and user-friendly error messages
 
+https://document-summary-assistantu.netlify.app/
+
 ## Project structure
 
 - `frontend/` - React + Vite frontend
