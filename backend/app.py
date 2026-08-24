@@ -721,6 +721,13 @@ def summarize():
         app.logger.exception("Document processing error")
         return jsonify({"success": False, "message": str(exc)}), 500
 
+@app.route("/")
+def home():
+    return jsonify({
+        "status": "success",
+        "message": "Document Summary Assistant backend is running"
+    })
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
