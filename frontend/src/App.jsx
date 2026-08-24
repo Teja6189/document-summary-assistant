@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const API_BASE_URL = "http://192.168.0.119:5001";
+const API_BASE_URL = "https://document-summary-assistant-1-6wc9.onrender.com";
 
 const SUMMARY_OPTIONS = [
   { value: "short", label: "Short" },
@@ -252,6 +252,15 @@ function App() {
 
       setSummary(data.summary || "");
 
+setKeyPoints(
+  Array.isArray(data.keyPoints)
+    ? data.keyPoints
+    : []
+);
+
+setSuccess(
+  "Document processed successfully."
+);
       setKeyPoints(
         Array.isArray(data.keyPoints)
           ? data.keyPoints
@@ -272,7 +281,7 @@ function App() {
         fetchError.message.toLowerCase().includes("fetch")
       ) {
         setError(
-          "Cannot connect to the backend. Please make sure app.py is running on http://192.168.0.119:5001."
+          
         );
       } else {
         setError(
