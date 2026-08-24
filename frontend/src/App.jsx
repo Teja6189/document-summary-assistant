@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const API_BASE_URL = "http://localhost:5001";
+const API_BASE_URL = "http://192.168.0.119:5001";
 
 const SUMMARY_OPTIONS = [
   { value: "short", label: "Short" },
