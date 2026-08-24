@@ -1,6 +1,12 @@
+
+
 # Document Summary Assistant
 
 A full-stack document summarization app built with React + Vite on the frontend and Python Flask on the backend.
+
+## Live Application
+
+https://document-summary-assistantu.netlify.app/
 
 ## Features
 
@@ -22,75 +28,53 @@ A full-stack document summarization app built with React + Vite on the frontend 
 
 1. Create and activate a Python virtual environment:
 
-   ```bash
-   cd /Users/tejaswi/Desktop/document-summary-assistant
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
+```bash
+cd /Users/tejaswi/Desktop/document-summary-assistant
+python3 -m venv .venv
+source .venv/bin/activate
+Install backend dependencies:
 
-2. Install backend dependencies:
+Bash
 
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
+pip install -r backend/requirements.txt
+Install Tesseract OCR on your machine. On macOS with Homebrew:
 
-3. Install Tesseract OCR on your machine. On macOS with Homebrew:
+Bash
 
-   ```bash
-   brew install tesseract
-   ```
+brew install tesseract
+Install frontend dependencies:
 
-4. Install frontend dependencies:
+Bash
 
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-## Run the app
-
+cd frontend
+npm install
+Run the app
 Start the backend from the project root:
 
-```bash
+Bash
+
 cd /Users/tejaswi/Desktop/document-summary-assistant
 source .venv/bin/activate
 cd backend
 flask --app app run --debug --host 0.0.0.0 --port 5001
-```
-
 Start the frontend in a separate terminal:
 
-```bash
+Bash
+
 cd /Users/tejaswi/Desktop/document-summary-assistant/frontend
 npm run dev
-```
-
 Open the app in a browser at:
 
-```text
+
 http://localhost:5173
-```
+Backend API
+Health check
+Bash
 
-## Backend API
-
-### Health check
-
-```bash
 curl http://localhost:5001/
-```
+Summarize document
+Bash
 
-### Summarize document
-
-```bash
 curl -X POST http://localhost:5001/api/summarize \
   -F "file=@example.pdf" \
   -F "length=medium"
-```
-
-## Notes
-
-- The frontend uses a Vite proxy so `/api` requests are forwarded to the Flask backend.
-- The backend is configured to run on port 5001 to avoid a system-level port conflict on port 5000.
-- Supported uploads are PDF, PNG, JPG, JPEG, and WEBP.
-- If the document has no readable text, the API returns a helpful error.
-
